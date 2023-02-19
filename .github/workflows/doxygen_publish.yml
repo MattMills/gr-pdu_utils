@@ -1,0 +1,39 @@
+name: Build and publish Doxygen docs
+on:
+  workflow_dispatch:
+  release:
+    types: published
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    # permissions:
+    #   contents: read
+    #     pages: write
+    #       id-token: write
+jobs: 
+  build-docs:
+    runs-on: ubuntu-latest
+    # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    name: Build doxygen docs
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install doxygen
+        run: sudo apt-get install -y doxygen
+      - name: Install gnuradio 
+        run: sudo apt-get install -y gnuradio libsndfile1-dev
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/build
+      - name: Build doxygen docs
+        run: cd ${{github.workspace}}/build/docs ; make
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload docs artifacts
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ${{github.workspace}}/build/docs/doxygen/html/
+      - name: Deploy pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+
